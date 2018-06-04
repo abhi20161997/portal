@@ -19,7 +19,7 @@ from meetup.views import (MeetupLocationAboutView, MeetupLocationList, MeetupVie
                           RejectMeetupLocationRequestView, ApproveRequestMeetupLocationView,
                           RequestMeetupView, NewMeetupRequestsListView, ViewMeetupRequestView,
                           ApproveRequestMeetupView, RejectMeetupRequestView,
-                          CancelMeetupLocationJoinRequestView)
+                          CancelMeetupLocationJoinRequestView, api_for_vms)
 
 
 urlpatterns = [
