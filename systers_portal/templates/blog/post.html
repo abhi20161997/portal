@@ -1,0 +1,51 @@
+{% extends "community/base.html" %}
+
+{% block head %}
+  <script type="text/javascript">
+    stLight.options({publisher: "340b978f-3a42-4f70-bb42-d639f57af637",
+      doNotHash: true,
+      doNotCopy: false,
+      hashAddressBar: false,
+      st_url:
+        {% if post_type == "news" %}
+          "{% url 'view_community_news' community.slug post.slug %}"
+        {% else %}
+          "{% url 'view_community_resource' community.slug post.slug %}"
+        {% endif %}
+    });
+  </script>
+{% endblock %}
+
+{% block title %}
+  - {{ community }} - {{ post.title }}
+{% endblock %}
+
+{% block community_page_content %}
+  <div class="blog-container">
+    <div class="blog-entry">
+      <h3 class="title">{{ post.title }}</h3>
+
+      <p class="meta">{{ post.date_modified }} | <a
+          href="{{ post.author.get_absolute_url }}">{{ post.author }}</a></p>
+
+      <div class="body">{{ post.content|safe }}</div>
+      {% if post.tags %}
+        <ul class="list-inline tags">
+          {% for tag in post.tags.all %}
+            <li><span class="label label-info">{{ tag }}</span></li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+      {% include 'meetup/snippets/share_buttons.html' %}
+    </div>
+  </div>
+{% endblock %}
+
+{% block extra_sidebar %}
+  {% if post_type == "news" %}
+    {% include 'blog/snippets/news_sidebar.html' with news=post %}
+  {% else %}
+    {% include 'blog/snippets/resources_sidebar.html' with resource=post %}
+  {% endif %}
+  {% include 'blog/snippets/tags_sidebar.html' %}
+{% endblock %}

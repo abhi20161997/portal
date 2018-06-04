@@ -1,0 +1,13 @@
+{% extends "community/base.html" %}
+
+{% block title %}
+  - {{ community }} - {{ page.title }}
+{% endblock %}
+
+{% block community_page_content %}
+  <div class="blog-container">
+    <div class="blog-entry">
+      <div class="body">{{ page.content|safe }}</div>
+    </div>
+  </div>
+{% endblock %}

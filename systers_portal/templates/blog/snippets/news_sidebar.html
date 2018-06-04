@@ -1,0 +1,19 @@
+{% load guardian_tags %}
+
+{% if user.is_authenticated and user.is_active %}
+  {% get_obj_perms user for community as "community_perms" %}
+  {% if "add_community_news" in community_perms %}
+    <div class="sidebar-module mb40">
+      <h4>News Actions</h4>
+      <ol class="list-unstyled">
+        <li><a href="{% url 'add_community_news' community.slug %}">Add news</a></li>
+        {% if "change_community_news" in community_perms and news %}
+          <li><a href="{% url 'edit_community_news' community.slug news.slug %}">Edit current news</a></li>
+        {% endif %}
+        {% if "delete_community_news" in community_perms and news %}
+          <li><a href="{% url 'delete_community_news' community.slug news.slug %}">Delete current news</a></li>
+        {% endif %}
+      </ol>
+    </div>
+  {% endif %}
+{% endif %}
