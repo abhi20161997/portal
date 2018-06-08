@@ -49,7 +49,7 @@ body {
 
 /* Container styles
 -------------------------------------------------- */
-body > .container {
+body > .container, body > .container-fluid {
   padding: 60px 15px 0;
 }
 
@@ -117,7 +117,13 @@ body > .container {
   background-color: #fff;
   text-align: center;
   border: 0;
+  color: #575757;
   box-shadow: none;
+}
+
+.jumbotron-custom .index-head {
+  font-family: Cairo;
+  color: #8d2165;
 }
 
 .featurette-divider {
@@ -126,10 +132,22 @@ body > .container {
 
 .featurette-heading {
   font-weight: 300;
+  font-family: Cairo;
+  color:#F89728;
   line-height: 1;
   letter-spacing: -1px;
   margin-top: 0;
   font-size: 3.5em;
+}
+
+.lead {
+  color: #575757;
+  font-family: Monserrat;
+}
+
+.btn {
+  background-color: #005c88 ;
+  border-color: #005c88;
 }
 
 @media screen and (max-width: 991px) {
@@ -143,14 +161,26 @@ body > .container {
 }
 
 
-/* Common: about us
+/* Common: about us, contact
 -------------------------------------------------- */
 .contact-text,
 .about-us-text {
-  font-family: Georgia, "Times New Roman", Times, serif;
+  font-family: Monserrat;
   font-size: 1.2em;
+  color: #575757;
   line-height: 1.8em;
   margin: 20px 0;
+}
+
+
+.about-us-head{
+  font-family: Cairo;
+  color: #8d2165;
+}
+
+.contact-head {
+  font-family: Cairo;
+  color: #8d2165;
 }
 
 .contact-icon {
@@ -167,6 +197,38 @@ body > .container {
   bottom: 0;
   top: 0;
   border: 0;
+}
+
+/* Community: new community request form
+---------------------------------------------------*/
+.request-form-head {
+  color: #8d2165;
+  font-family: 'Cairo';
+}
+
+.form-control {
+  background-color: #d1e9d9;
+}
+.option {
+  color: white;
+
+}
+
+.well {
+  position: relative;
+  background-color: white;
+  border: none;
+  box-shadow: none;
+  width: auto; 
+  font-family: Cairo;
+}
+
+.ml15{
+  font-family: Cairo;
+}
+
+.control-label {
+  color: #101820;
 }
 
 /* social icons contact page
@@ -344,6 +406,15 @@ table.decoration-none  tr a {
   padding-top: 25px;
 }
 
+.glyphicon {
+  float: right;
+  color: black;
+}
+
+.glyphicon-pencil {
+  right: 10px;
+}
+
 .map-container {
   height:400px;
   padding-right: 15px;
@@ -366,9 +437,19 @@ table.decoration-none  tr a {
   word-wrap: break-word;
   margin-bottom: 40px;
 }
-/* CSS for comment box in discussion area
---------------------------------------------------*/
-.edit .delete{
+
+/* Commentbox CSS
+------------------------------------------------- */
+.comment-box{
+  border: 0px;
+  background-color: white;
+  color: #555555;
+  font-family: Georgia, "Times New Roman", Times, serif;
+  font-size: 1.0em;
+  line-height: 1.0em;
+}
+  
+.edit .delete {
     background-color: #fff;
     color: black;
     padding: 10px;
@@ -379,6 +460,8 @@ table.decoration-none  tr a {
 
 .commentbox .details{
   text-decoration: none;
+  
+/*  webkit-text-size-adjust: 100%;*/
 }
 
 /* Meetup Location Members user-cell space

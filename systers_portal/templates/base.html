@@ -22,7 +22,7 @@
 
 <body>
 <div class="navbar navbar-default navbar-fixed-top" role="navigation">
-  <div class="container">
+  <div class="container-fluid">
     <div class="navbar-header">
       <button type="button" class="navbar-toggle" data-toggle="collapse"
               data-target=".navbar-collapse">
@@ -40,7 +40,6 @@
         <li {% if url == request.path %}class="active"{% endif %}>
           <a href="{{ url }}">About Us</a>
         </li>
-        {% url 'new-community-proposal' as url %}
         <li class="dropdown {% if '/community/' in request.path or url == request.path %}active{% endif %}">
           <a href="#" class="dropdown-toggle" data-toggle="dropdown">Communities <span class="caret"></span></a>
           <ul class="dropdown-menu" role="menu">
@@ -49,26 +48,50 @@
                 <a role="menuitem" href="{{ community.get_absolute_url }}">{{ community.name }}</a>
               </li>
             {% endfor %}
+              {% if user.is_authenticated and user.is_active %}
+              {% url 'request_community' as url %}
               <li {% if url == request.path %}class="active"{% endif %}role="presentation">
                 <a role="menuitem" href="{{ url }}">
-                  New Community Proposal
-                </a>
+                  Request a new community</a>
               </li>
+              {% endif %}
               {% if user.is_authenticated and user.is_active and user.is_staff %}
+              {% url 'unapproved_community_requests' as url %}
               <li {% if url == request.path %}class="active"{% endif %}role="presentation">
-                <a role="menuitem" href="{% url 'add_community' %}">
+                <a role="menuitem" href="{{ url }}">
+                  View community requests </a>          
+              </li>
+              {% endif %}
+              {% if user.is_authenticated and user.is_active and user.is_staff %}
+              {% url 'add_community' as url %}
+              <li {% if url == request.path %}class="active"{% endif %}role="presentation">
+                <a role="menuitem" href="{{ url }}">
                   Add a new community</a>
               </li>
               {% endif %}
           </ul>
         </li>
-        <li {% if '/meetup/' in request.path %}class="active"{% endif %} class="dropdown">
+        <li {% if '/meetup/' in request.path %}class="active"{% endif %} class="dropdown" id="meetup-dropdown">
           <a href="#" class="dropdown-toggle" data-toggle="dropdown">Meetups <span class="caret"></span></a>
           <ul class="dropdown-menu" role="menu">
             {% url 'list_meetup_location' as url %}
             <li {% if url == request.path %}class="active"{% endif %}>
               <a role="menuitem" href="{{ url }}">Meetup Locations</a>
             </li>
+            {% if user.is_authenticated and user.is_active %}
+            {% url 'request_meetup_location' as url %}
+            <li {% if url == request.path %}class="active"{% endif %}role="presentation">
+              <a role="menuitem" href="{{ url }}">
+              Request New Meetup Location</a> 
+            </li>
+            {% endif %}
+            {% if user.is_authenticated and user.is_active and user.is_staff %}
+            {% url 'new_meetup_location_requests' as url %}
+            <li {% if url == request.path %}class="active"{% endif %}role="presentation">
+              <a role="menuitem" href="{{ url }}">
+              View meetup location requests </a>          
+            </li>
+            {% endif %}
             {% if user.is_staff %}
             {% url 'add_meetup_location' as url %}
             <li {% if url == request.path %}class="active"{% endif %}>
@@ -83,7 +106,7 @@
       </ul>
       <ul class="nav navbar-nav navbar-right text-uppercase">
         {% if user.is_authenticated and user.is_active %}
-          <li class="dropdown {% if '/users/' in request.path or '/accounts/' in request.path %}active{% endif %}">
+          <li class="dropdown {% if '/users/' in request.path or '/accounts/' in request.path %}active{% endif %}" id="user-dropdown">
             <a href="#" class="dropdown-toggle"
                data-toggle="dropdown">{{ user }} <span class="caret"></span></a>
             <ul class="dropdown-menu" role="menu">
@@ -97,7 +120,7 @@
               <li {% if url == request.path %}class="active"{% endif %}>
                 <a href="{{ url }}">Change password</a>
               </li>
-              {% url 'account_logout' as url %}
+              {% url 'logout' as url %}
               <li {% if url == request.path %}class="active"{% endif %}>
                 <a href="{{ url }}">Logout</a>
               </li>
@@ -128,7 +151,7 @@
   </div>
 {% endif %}
 
-<div class="container">
+<div class="container-fluid">
   {% block content %}{% endblock %}
 </div>
 
