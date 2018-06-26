@@ -194,6 +194,47 @@ body > .container, body > .container-fluid {
   margin: 0 5px;
 }
 
+/* Meetup: Meetup List
+---------------------------------------------------*/
+.meetup-list-head {
+  font-family: "Cairo";
+  color: #8d2165;
+}
+
+.meetup-list-subhead {
+  font-size: 24px;
+  margin-bottom: 45px;
+  line-height: 1.3;
+  text-align: center;
+}
+
+.search-options {
+  font-family: Cairo;  
+  font-size: 15px;
+  margin: 0 4px 0 0;
+  color: #888b8d;
+  border: none;
+  display: inline-block;
+}
+
+.search-btn {
+  color: white;
+  font-family: Cairo;
+  font-size: 18px;
+  background-color: #54BCEB;
+  text-transform: uppercase;
+  border: none;
+}
+
+.search-form {
+  display: inline;
+}
+
+.filter-form {
+  display: inline;
+  float: right;
+}
+
 /* Common: new community proposal form
 ---------------------------------------------------*/
 #google-embed-form{
