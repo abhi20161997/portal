@@ -30,7 +30,10 @@ from django.http import JsonResponse
 from rest_framework.views import APIView
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
-
+from cities_light.models import City
+from geopy.geocoders import Nominatim
+from django.contrib.gis.geos import Point
+import operator
 
 class RequestMeetupView(LoginRequiredMixin, MeetupLocationMixin, CreateView):
     """View to Request a new meetup"""
@@ -377,20 +380,16 @@ class AllUpcomingMeetupsView(ListView):
     """List all upcoming meetups"""
     template_name = "meetup/list_meetup.html"
     model = Meetup
-    paginate_by = 20
 
-    def get_queryset(self, **kwargs):
-        """Set ListView queryset to all the meetups whose date is equal to or greater than the
-        current date"""
+    def get_context_data(self, **kwargs):
         meetup_list = Meetup.objects.filter(
-            date__gte=datetime.date.today()).order_by('date', 'time')
-        return meetup_list
+                date__gte=datetime.date.today()).order_by('date', 'time')
+        context = super(AllUpcomingMeetupsView, self).get_context_data(**kwargs)
+        context['cities_list'] = City.objects.all()
+        context['meetup_locations'] = MeetupLocation.objects.all()
+        context['meetup_list'] = meetup_list
+        return context
 
-@csrf_exempt
-def search(request):
-    if request.method == 'POST':
-        print request.POST
-        return JsonResponse({"success": " Yes "}, status = 200)
 
 class MeetupLocationList(ListView):
     """List all Meetup Locations"""
@@ -1510,3 +1509,59 @@ class ApiForVmsView(APIView):
         meetups = Meetup.objects.filter(date__gte=date).order_by('date')
         apiforvmsview = ApiForVmsView()
         return(apiforvmsview.return_meetup_data(meetups))
+
+
+@csrf_exempt
+def search(request):
+    if request.method == 'POST':
+        date = request.POST.get('date')
+        meetup_location = request.POST.get('meetup_location')
+        keyword = request.POST.get('keyword')
+        selected_filter = request.POST.get('filter')
+        location = request.POST.get('location')
+        if meetup_location == 'Meetup Location':
+            meetup_location = ''
+        if date and meetup_location and keyword:
+            searched_meetups = Meetup.objects.filter(date=date,meetup_location__name=meetup_location,
+                                                     description__contains=keyword)
+        elif date and meetup_location:
+            searched_meetups = Meetup.objects.filter(date=date,meetup_location__name=meetup_location)
+        elif date and keyword:
+            searched_meetups = Meetup.objects.filter(date=date,description__contains=keyword)
+        elif meetup_location and keyword:
+            searched_meetups = Meetup.objects.filter(meetup_location__name=meetup_location,
+                                                     description__contains=keyword)
+        elif date:
+            searched_meetups = Meetup.objects.filter(date=date)
+        elif meetup_location:
+            searched_meetups = Meetup.objects.filter(meetup_location__name=meetup_location)
+        elif keyword:
+            searched_meetups = Meetup.objects.filter(description__contains=keyword)
+        else :
+            searched_meetups = meetup_list = Meetup.objects.filter(date__gte=datetime.date.today())
+        searched_meetups.order_by('date','time')
+
+        if selected_filter == '2':
+           geolocator = Nominatim(timeout=6)
+           user_loc = (geolocator.geocode(location))
+           user_point = Point((float)(user_loc.raw['lon']),(float)(user_loc.raw['lat']))
+        results = list()
+        for meetup in searched_meetups:
+            distance = ''
+            unit = ''
+            if selected_filter == '2':
+                geolocator = Nominatim(timeout=6)
+                meetup_loc = (geolocator.geocode(meetup.meetup_location.location))
+                meetup_point = Point((float)(meetup_loc.raw['lon']),(float)(meetup_loc.raw['lat']))            
+                distance = (int)(user_point.distance(meetup_point))*100
+                unit = 'kilometers from your location'
+            results.append({'date': meetup.date,
+                            'meetup': meetup.title,
+                            'location': meetup.meetup_location.name,
+                            'location_slug': meetup.meetup_location.slug,
+                            'meetup_slug': meetup.slug,
+                            'distance': distance,
+                            'unit': unit })
+            results.sort(key=operator.itemgetter('distance'))
+
+        return JsonResponse({'search_results': results}, safe=False)
