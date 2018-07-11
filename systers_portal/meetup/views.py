@@ -1,4 +1,5 @@
 import datetime
+import operator
 
 from django.core.urlresolvers import reverse
 from django.shortcuts import get_object_or_404
@@ -28,12 +29,12 @@ from users.models import SystersUser
 from common.models import Comment
 from django.http import JsonResponse
 from rest_framework.views import APIView
-from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from cities_light.models import City
 from geopy.geocoders import Nominatim
 from django.contrib.gis.geos import Point
-import operator
+from django.db.models import Q
+
 
 class RequestMeetupView(LoginRequiredMixin, MeetupLocationMixin, CreateView):
     """View to Request a new meetup"""
@@ -383,7 +384,7 @@ class AllUpcomingMeetupsView(ListView):
 
     def get_context_data(self, **kwargs):
         meetup_list = Meetup.objects.filter(
-                date__gte=datetime.date.today()).order_by('date', 'time')
+            date__gte=datetime.date.today()).order_by('date', 'time')
         context = super(AllUpcomingMeetupsView, self).get_context_data(**kwargs)
         context['cities_list'] = City.objects.all()
         context['meetup_locations'] = MeetupLocation.objects.all()
@@ -1522,38 +1523,41 @@ def search(request):
         if meetup_location == 'Meetup Location':
             meetup_location = ''
         if date and meetup_location and keyword:
-            searched_meetups = Meetup.objects.filter(date=date,meetup_location__name=meetup_location,
-                                                     description__contains=keyword)
+            searched_meetups = Meetup.objects.filter(Q(description__contains=keyword) |
+                                                     Q(title__contains=keyword), date=date,
+                                                     meetup_location__name=meetup_location)
         elif date and meetup_location:
-            searched_meetups = Meetup.objects.filter(date=date,meetup_location__name=meetup_location)
+            searched_meetups = Meetup.objects.filter(date=date,
+                                                     meetup_location__name=meetup_location)
         elif date and keyword:
-            searched_meetups = Meetup.objects.filter(date=date,description__contains=keyword)
-        elif meetup_location and keyword:
-            searched_meetups = Meetup.objects.filter(meetup_location__name=meetup_location,
+            searched_meetups = Meetup.objects.filter(Q(description__contains=keyword) |
+                                                     Q(title__contains=keyword), date=date,
                                                      description__contains=keyword)
+        elif meetup_location and keyword:
+            searched_meetups = Meetup.objects.filter(Q(description__contains=keyword) |
+                                                     Q(title__contains=keyword),
+                                                     meetup_location__name=meetup_location)
         elif date:
             searched_meetups = Meetup.objects.filter(date=date)
         elif meetup_location:
             searched_meetups = Meetup.objects.filter(meetup_location__name=meetup_location)
         elif keyword:
-            searched_meetups = Meetup.objects.filter(description__contains=keyword)
-        else :
-            searched_meetups = meetup_list = Meetup.objects.filter(date__gte=datetime.date.today())
-        searched_meetups.order_by('date','time')
+            searched_meetups = Meetup.objects.filter(Q(description__contains=keyword) |
+                                                     Q(title__contains=keyword))
+        else:
+            searched_meetups = Meetup.objects.filter(date__gte=datetime.date.today())
 
-        if selected_filter == '2':
-           geolocator = Nominatim(timeout=6)
-           user_loc = (geolocator.geocode(location))
-           user_point = Point((float)(user_loc.raw['lon']),(float)(user_loc.raw['lat']))
         results = list()
         for meetup in searched_meetups:
             distance = ''
             unit = ''
             if selected_filter == '2':
                 geolocator = Nominatim(timeout=6)
+                user_loc = (geolocator.geocode(location))
+                user_point = Point((float)(user_loc.raw['lon']), (float)(user_loc.raw['lat']))
                 meetup_loc = (geolocator.geocode(meetup.meetup_location.location))
-                meetup_point = Point((float)(meetup_loc.raw['lon']),(float)(meetup_loc.raw['lat']))            
-                distance = (int)(user_point.distance(meetup_point))*100
+                meetup_point = Point((float)(meetup_loc.raw['lon']), (float)(meetup_loc.raw['lat']))
+                distance = (int)(user_point.distance(meetup_point)) * 100
                 unit = 'kilometers from your location'
             results.append({'date': meetup.date,
                             'meetup': meetup.title,
@@ -1561,7 +1565,8 @@ def search(request):
                             'location_slug': meetup.meetup_location.slug,
                             'meetup_slug': meetup.slug,
                             'distance': distance,
-                            'unit': unit })
-            results.sort(key=operator.itemgetter('distance'))
-
+                            'unit': unit})
+            if selected_filter == '2':
+                results.sort(key=operator.itemgetter('distance'))
+        results.sort(key=operator.itemgetter('date'))
         return JsonResponse({'search_results': results}, safe=False)

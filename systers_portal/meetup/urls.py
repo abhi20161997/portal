@@ -19,8 +19,8 @@ from meetup.views import (MeetupLocationAboutView, MeetupLocationList, MeetupVie
                           RejectMeetupLocationRequestView, ApproveRequestMeetupLocationView,
                           RequestMeetupView, NewMeetupRequestsListView, ViewMeetupRequestView,
                           ApproveRequestMeetupView, RejectMeetupRequestView,
-                          CancelMeetupLocationJoinRequestView, ApiForVmsView, AllUpcomingMeetupsView,
-                          search)
+                          CancelMeetupLocationJoinRequestView, ApiForVmsView,
+                          AllUpcomingMeetupsView, search)
 
 
 urlpatterns = [
