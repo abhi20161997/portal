@@ -1,3 +1,20 @@
+// Extracting cookies
+function getCookie(name) {
+            var cookieValue = null;
+            if (document.cookie && document.cookie !== "") {
+                var cookies = document.cookie.split(";");
+                cookies.forEach(function(cookie){
+                	cookie = jQuery.trim(cookie);
+                    // Does this cookie string begin with the name we want?
+                    if (cookie.substring(0, name.length + 1) === (name + "=")) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                });
+            }
+            return cookieValue;
+        }
+
 // Getting data from the search bars
 $("#go-btn").click(function() {
 
@@ -6,15 +23,15 @@ $("#go-btn").click(function() {
 	var Keyword = document.getElementById("keyword-input").value;
 	var SelectedFilter = document.getElementById("myList").value;
 	var Location = document.getElementById("location-input").options[document.getElementById("location-input").selectedIndex].text;
-
+	var csrftoken = getCookie("csrftoken");
 	var Data = {
+		"csrfmiddlewaretoken": csrftoken,
 		"meetup_location": MeetupLocation,
 		"date": SelectedDate,
 		"keyword": Keyword,
 		"filter" : SelectedFilter,
 		"location": Location
 	};
-
 	$.ajax({
 		type: "POST",
 		url: "search/",
@@ -25,14 +42,11 @@ $("#go-btn").click(function() {
 				x += "<div class=\n" +
 				"'text-bottom ml15'>"+i.location +"<div><a href='../"+i.location_slug+"\n" +
 				"/"+i.meetup_slug+"''>"+i.meetup+"</a>"+"</div>"+i.date+"\n" +
-				"<div><b>"+i.distance+" "+i.unit+"</b></div>";			
+				"<div><b>"+i.distance+" "+i.unit+"</b></div></div>";			
 			}
 		$("#meetups-list").html(x);
 		},
 		dataType:"json",
-		error(e){
-			alert(e);
-		}
 	});
 });
 
